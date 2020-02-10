@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+{% load unslackify %}
+{% load markdown_filter %}
+
+{% block head %}
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" href="{% static "incident_doc.css" %}">
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-lg-12 text-center">
+      {% comment %} ----- Heading ----- {% endcomment %}
+      <h1 class="mt-3" id="title"><a href="">Incident {{ incident.pk }}</a></h1>
+      <div id="status"><strong class="{{ incident.status_text }} blink_me">{{ incident.status_text|upper }}</strong>
+        {% if incident.severity_text %}- {{ incident.severity_text|upper}} SEVERITY{% endif %}</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-6">
+      {% comment %} ----- Summary ----- {% endcomment %}
+      <br />
+      <div class="pannel panel-primary box-summary">
+        <div class="panel-heading">
+          <h3 class="panel-title"><i class="fa fa-clipboard fa-2x"></i>   Summary</h3>
+        </div>
+        <div class="panel-body">
+          <ul class="summary-data">
+          <p>{% if incident.summary %}{{ incident.summary|unslackify|markdown_filter|safe  }}{% endif %}</p>
+          {% if incident.impact %}<li><span>Impact:</span>{{ incident.impact|unslackify|markdown_filter|safe }}</li>{% endif %}
+          <li><span>Reporter:</span>{{ incident.reporter.display_name }}</li>
+          {% if incident.lead %}<li><span>Lead:</span>{{ incident.lead.display_name }}</li>{% endif %}
+          <li><span>Start Time:</span>{% if incident.start_time %}{{ incident.start_time }}{% endif %}</li>
+          <li><span>Report Time:</span>{% if incident.report_time %}{{ incident.report_time }}{% endif %}</li>
+          {% if incident.is_closed %}
+          <li><span>End Time:</span>{{ incident.end_time }}</li>
+          <li><span>Duration:</span>{{ incident.duration}}</li>
+          {% endif %}
+          {% if user_stats %}
+          <li><span>Participants:</span>
+          <ul id="participant">
+          {% for stats in user_stats %}
+          <li>
+          {{ stats.user.display_name }} ({{stats.message_count}} messages)
+          </li>
+          {% endfor %}
+          </ul>
+          </li>
+          {% endif %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+    {% if events %}
+    <h3>Timeline</h3>
+    <div class="timeline-centered">
+      {% for event in events.all %}
+      <article class="timeline-entry">
+        <div class="timeline-entry-inner">
+          <div class="timeline-icon bg-primary">
+            <i class="entypo-feather"></i>
+          </div>
+          <div class="timeline-label">
+            <h2><a href="#">{{ event.author }}</a> <span>{{ event.timestamp|date:"H:i:s e" }}</span></h2>
+            <p>{{ event|stringformat:'s'|unslackify }}</p>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,27 @@
+table{
+    width:100%;
+}
+#example_filter{
+    float:right;
+}
+#example_paginate{
+    float:right;
+}
+label {
+    display: inline-flex;
+    margin-bottom: .5rem;
+    margin-top: .5rem;
+
+}
+.dataTables_wrapper .dataTables_length {
+float: left;
+}
+.dataTables_wrapper .dataTables_filter {
+float: right;
+text-align: right;
+}
+
+.dataTables_paginate {
+float: right;
+text-align: right;
+}

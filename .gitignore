@@ -1,0 +1,15 @@
+.vscode
+.envrc
+.DS_Store
+postgres_data
+
+__pycache__
+/static/
+db.sqlite3
+Pipfile
+virtual-env
+*.env
+/src/
+response/settings/base.py
+response/settings/dev.py
+response/settings/prod.py

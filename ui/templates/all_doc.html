@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load static %}
+{% load unslackify %}
+{% load markdown_filter %}
+
+{% block head %}
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" href="{% static "all_doc.css" %}">
+<script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+{% endblock %}
+
+{% block content %}
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+  <h3>Open Incidents</h3>
+  <hr>
+    <div class="row">
+      <table id="open" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Description</th>
+            <th>Reporter</th>
+            <th>Lead</th>
+            <th>Severity</th>
+            <th>Document</th>
+            <!-- <th>Comms Channel</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          {% for incident in incidents %}
+            {% if not incident.is_closed %}
+          <tr>
+            <td>INC-{{ incident.pk }}</td>
+            <td style="word-wrap: break-word;min-width: 160px;max-width: 160px;">{% if incident.summary %}{{ incident.summary|unslackify|markdown_filter|safe }}{% endif %}</td>
+            <td>{{ incident.reporter.display_name }}</td>
+            <td>{{ incident.lead.display_name }}</td>
+            {% if 'critical' in incident.severity_text %}
+            <td class="bg-danger">
+            {% elif 'major' in incident.severity_text %}
+            <td class="bg-warning">
+            {% elif 'minor' in incident.severity_text %}
+            <td class="bg-info">
+            {% else %}
+            <td>
+            {% endif %}
+            {{ incident.severity_text|upper }}</td>
+            <td align="center">
+              <a href="https://cmd.blucommerce.com/incidents/incident/{{ incident.pk }}/">
+                <button type="button" class="btn btn-primary btn-lg btn-block">
+                  <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+                </button>
+              </a>
+            </td>
+            <!-- <td align="center">
+              {% if incident.channel_id %}
+              <a href="slack://channel?team=T2SG5GF7S&id={{ incident.channel_id }}">
+                <button type="button" class="btn btn-success btn-lg">
+                  <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+                </button>
+              </a>
+              {% endif %}
+            </td> -->
+          </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+<br>
+<h3>Closed Incidents</h3>
+<hr>
+  <div class="row">
+    <table id="closed" class="table table-striped table-bordered" style="width:100%">
+      <thead>
+        <tr>
+          <th data-field="id">#</th>
+          <th>Description</th>
+          <th>Reporter</th>
+          <th>Lead</th>
+          <th>Severity</th>
+          <th>Document</th>
+          <!-- <th>Comms Channel</th> -->
+        </tr>
+      </thead>
+      <tbody>
+        {% for incident in incidents %}
+          {% if incident.is_closed %}
+        <tr>
+          <td>INC-{{ incident.pk }}</td>
+          <td style="word-wrap: break-word;min-width: 160px;max-width: 160px;">{% if incident.summary %}{{ incident.summary|unslackify|markdown_filter|safe }}{% endif %}</td>
+          <td>{{ incident.reporter.display_name }}</td>
+          <td>{{ incident.lead.display_name }}</td>
+          <td>{{ incident.severity_text|upper }}</td>
+          <td align="center">
+            <a href="https://cmd.blucommerce.com/incidents/incident/{{ incident.pk }}/">
+              <button type="button" class="btn btn-primary btn-lg btn-block">
+                <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+              </button>
+            </a>
+          </td>
+          <!-- <td align="center">
+            {% if incident.channel_id %}
+            <a href="slack://channel?team=T2SG5GF7S&id={{ incident.channel_id }}">
+              <button type="button" class="btn btn-success btn-lg">
+                <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+              </button>
+            </a>
+            {% endif %}
+          </td> -->
+        </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+<script>
+    $(document).ready(function() {
+      $('#open').DataTable( {
+          "aLengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
+          "iDisplayLength": 5,
+          "order": [[ 0, "desc" ]]
+        } );
+      $('#closed').DataTable( {
+          "aLengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
+          "iDisplayLength": 5,
+          "order": [[ 0, "desc" ]]
+        } );
+    } );
+</script>
+{% endblock %}
+
+slack://channel?team={TEAM_ID}&id={CHANNEL_ID}
