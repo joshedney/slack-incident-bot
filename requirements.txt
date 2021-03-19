@@ -8,7 +8,7 @@ Django==2.2.3
 django-after-response==0.2.2
 django-bootstrap4==0.0.7
 django-filter==2.1.0
-djangorestframework==3.9.2
+djangorestframework==3.11.2
 emoji-data-python==1.1.0
 idna==2.8
 Markdown==3.0.1
